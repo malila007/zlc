@@ -1,0 +1,105 @@
+---
+description: Protects backoffice chat tab-sync, shared-inbox behavior, follower-send retry, and message ordering.
+globs:
+  - backoffice-frontend/src/services/chat/**/*.js
+  - backoffice-frontend/src/components/chat/**/*.vue
+alwaysApply: false
+---
+
+# backoffice-frontend — Chat Tab Sync & Shared Inbox Safety Rules
+
+> These rules apply when editing backoffice chat code. Read `PROJECT.md` and `chat-service/DOCUMENT.md` when present first.
+>
+> Backoffice chat is a shared agent inbox. Multiple admins/operators may use the same `agent_username` and must all be able to see the same chat scope.
+
+---
+
+## Tab Sync Is A Server-Protection Requirement
+
+- Only the leader tab should own the real WebSocket for one browser/profile.
+- Follower tabs must communicate through `BroadcastChannel`.
+- Web Locks is the preferred leader election path.
+- The localStorage heartbeat fallback must still elect one leader when Web Locks is unavailable.
+
+Critical files:
+
+| File | Risk |
+|------|------|
+| `src/services/chat/tab/tab-leader.js` | Leader election logic |
+| `src/services/chat/connection/websocket/connection-manager.js` | Leader/follower role switching, BroadcastChannel relay, follower send ACK/NACK, follower **HTTP** relay (`FOLLOWER_HTTP` / `FOLLOWER_HTTP_RESULT`) for broadcast REST so only the leader tab calls chat-service |
+| `src/services/chat/domain/message-service.js` | Pending outbound queue and retry behavior |
+| `src/services/chat/protocol/message-handler.js` | Incoming message, history, deduplication, ordering |
+| `src/services/chat/chat-service.js` | Auth, reconnect, polling, tab-sync event flow |
+| `src/components/chat/main/Main.vue` | Connect/disconnect lifecycle from UI/auth state |
+
+Any change in these areas requires multi-tab validation before production release.
+
+---
+
+## Shared Inbox Rule
+
+- `agent_username` is the chat routing identity for the backoffice shared inbox.
+- Do not enforce a low per-user WebSocket cap on `role: "agent"` using `agent_username`.
+- Customer/widget fan-out may be limited per customer, but shared backoffice agent connections must allow multiple real admins/devices.
+- Backoffice frontend tab sync is responsible for one browser/profile opening one WebSocket; backend global/IP limits remain the broader safety net.
+
+---
+
+## Follower Send And Pending Queue
+
+- Follower sends must use ACK/NACK or timeout tracking so messages are not silently lost while the leader reconnects.
+- Pending queue deduplication must not use only `to + content + messageType`; operators may intentionally send identical text twice.
+- Use a per-message internal retry id/client id for retry deduplication.
+- Do not send internal retry ids over the WebSocket contract unless the backend explicitly supports them.
+- `removePendingMessage()` must remove one acknowledged pending message at a time, not every pending message with the same content.
+
+---
+
+## Message Ordering And Deduplication
+
+- Message display should remain timestamp-sorted after live messages, `message_sent`, and history merge.
+- Keep id-based deduplication plus content/time-window fallback for events that do not have stable IDs.
+- Do not add history retry/load call sites without checking duplicate display behavior.
+
+---
+
+## History Loading Cross-Tab Sync
+
+- `historyLoadingFor` is **per browser tab** (each tab has its own `chatService` state). Follower tabs that call `getHistory` set loading locally; the leader performs the WebSocket request.
+- When the **leader** finishes handling a `history` response, it publishes `HISTORY_RECEIVED` on UI `tab-sync.js` with `{ customerId, messages }` so every tab mirrors the same thread (not only the leader tab).
+- Follower tabs still receive `WS_EVENT` history from the leader-sync channel; `HISTORY_RECEIVED` is the authoritative cross-tab snapshot when a tab missed the relay.
+- Do not call `getHistory` on customer select or `visibilitychange` when `state.messages[customerId]` is already populated (another tab may have loaded history via `WS_EVENT` or `HISTORY_RECEIVED`).
+- `conversation.vue` must not show "Loading messages..." when messages for the active chat are already present.
+
+## Backoffice Member List Cross-Tab Sync
+
+- Offline / no-session chat targets come from the backoffice member API (`source: "backoffice"`), merged after WebSocket `customers`.
+- Follower tabs do not own the WebSocket; they may receive `CUSTOMERS_REFRESHED` (WS-only rows) before their own member API fetch finishes.
+- After merge, the loading tab publishes `BACKOFFICE_MEMBERS_SYNC` on UI `tab-sync.js` so other tabs in the same profile receive the same member rows without re-fetching every page.
+- `MemberService.ensureBackofficeMembersLoaded()` must run when a tab still has no `source: "backoffice"` rows after `CUSTOMERS_REFRESHED` or tab focus (`visibilitychange`).
+- Do not remove `source: "backoffice"` customers on `user_status_update` offline events.
+
+## Broadcast Banner Cross-Tab Sync
+
+- Only the submitting tab actually polls a broadcast job, but **every** tab must mirror the outcome banner so the operator sees the same result regardless of which tab is focused.
+- `broadcast/Main.vue` publishes a `BROADCAST_STATUS` event on `tab-sync.js` (the UI `BroadcastChannel`, distinct from the leader-sync channel) every time `bannerPhase` changes.
+- Receiving tabs apply the payload to local refs under an `applyingRemoteStatus` flag so the watcher does not re-emit and create an echo loop.
+- Do not move broadcast banner state into a Pinia store without re-wiring this cross-tab sync, or follower tabs will drift again.
+
+---
+
+## Mandatory Validation Checklist
+
+Before marking backoffice chat tab-sync work production-ready:
+
+- [ ] Single tab connects, authenticates, loads customers/history, sends text and image.
+- [ ] Two tabs in one browser/profile produce one real WebSocket owner.
+- [ ] Follower tab can send; leader forwards; message appears once.
+- [ ] Follower tab Broadcast submit: leader performs the HTTP `fetch`; only one outbound request per action (inspect Network on leader).
+- [ ] Leader reconnect or tab close promotes/uses another tab without lost messages.
+- [ ] Repeated identical text messages are not dropped when offline/reconnecting.
+- [ ] Message order remains timestamp-sorted after live send, reconnect, and history refresh.
+- [ ] Multiple admins/devices using the same `agent_username` are not blocked by per-user backend caps.
+- [ ] Two tabs: follower tab shows offline / no-session backoffice members (not only WS customers).
+- [ ] Leader tab scroll-loads more members; follower tab receives them via `BACKOFFICE_MEMBERS_SYNC`.
+- [ ] `npm run build` passes in `backoffice-frontend`.

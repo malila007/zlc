@@ -1,0 +1,24 @@
+# Sub-repos — synced via their own Bitbucket remotes, not this root repo
+backoffice-frontend/
+chat-service/
+floating-chat/
+
+# Machine-local Claude state
+.claude/settings.local.json
+.claude/worktrees/
+
+# Dependencies / build
+node_modules/
+dist/
+build/
+
+# Env / secrets
+.env
+.env.*
+
+# Logs
+*.log
+
+# OS junk
+.DS_Store
+Thumbs.db

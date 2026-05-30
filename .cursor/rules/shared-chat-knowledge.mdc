@@ -1,0 +1,42 @@
+---
+description: Shared project knowledge for Claude, Codex, and Cursor across the chat workspace.
+globs:
+  - "**/*"
+alwaysApply: true
+---
+
+# Shared Chat Project Knowledge
+
+**Read `PROJECT.md` first** — it is canonical and owns the reading order, the docs-on-change table, and the pre-release E2E gate. Cursor's only project-specific job is the same workflow and coding rules below (Cursor has no global config file).
+
+Code wins over docs. Do not break floating-chat or backoffice leader/follower tab sync.
+
+## Shared Workflow Mindset
+
+All AI tools (Claude, Codex, Cursor) work the same way here. **Before any task, check if a workflow applies — do not jump to code first.**
+
+1. PO/user gives the requirement.
+2. `tech-lead` performs requirement intake, inspects context, and asks detailed clarification questions until no material ambiguity remains.
+3. `tech-lead` + `qa-tester` create the plan, acceptance criteria, test strategy, risks, and Definition of Done.
+4. `tech-lead` splits work and may spawn multiple `backend` / `frontend` agents for cleanly independent subtasks.
+5. `frontend` / `backend` implement and integrate.
+6. `reviewer`, `qa-tester`, and `tech-lead` inspect the work together for correctness, regression risk, readability, and release confidence.
+7. `qa-tester` verifies.
+8. `tech-lead` checks release readiness.
+
+Correctness, readable code, maintainability, and complete verification matter more than speed.
+
+Before handoff, self-review changed code/docs and the final answer against the request; remove duplication and verify claims.
+
+If the user says `team-lead` or `team-leader`, treat that as `tech-lead`, not a separate role.
+
+## Issues / risks
+
+Tracked in **Jira** (project/space `ZLC`, named **Chat**, on `nutcom3.atlassian.net`) via the Atlassian MCP — not in `.notes/`. Use only the Chat Jira space for this repo. Found an unfixed issue or risk? Create/update a ticket using the format in `PROJECT.md`; do not fix silently.
+
+## Coding Philosophy
+
+- **No comments by default.** Only add one when the WHY is non-obvious — a constraint, workaround, or surprising behavior. One short line max. Comments explain WHY, never WHAT.
+- **Simple and short wins.** Do not abstract beyond what the task requires.
+- **Self-documenting names.** Read the code, not a comment.
+- **No over-engineering.** No handling for impossible cases, no speculative configuration the task does not need.

@@ -1,0 +1,81 @@
+---
+description: Warns about the fragile tab-sync and message-deduplication subsystems in floating-chat. Apply when editing any floating-chat source file.
+globs:
+  - floating-chat/src/**/*.ts
+alwaysApply: false
+---
+
+# floating-chat — Tab Sync & Deduplication Safety Rules
+
+> These rules apply to every change in `floating-chat/src/`.  
+> **Read `PROJECT.md`, `chat-service/DOCUMENT.md` when present, and `floating-chat/CLAUDE.md` before starting any task in this project.**
+>
+> Tab sync is a server-protection requirement. The goal is to prevent many browser tabs from opening many WebSocket connections and overwhelming `chat-service`.
+
+---
+
+## 🚨 Tab Sync is High Risk
+
+The widget uses a **leader/follower** multi-tab model:
+
+- **Leader tab** holds the real WebSocket; relays all WS events via `BroadcastChannel`.
+- **Follower tab** has no socket; receives everything through the channel.
+
+Critical files — extra care required:
+
+| File | Risk |
+|------|------|
+| `src/services/tab-leader.ts` | Leader election logic (Web Locks + localStorage fallback) |
+| `src/services/connection-manager.ts` | `becomeLeader()` / `becomeFollower()` — BroadcastChannel wiring |
+| `src/services/tab-sync.ts` | Cross-tab UI events (`UNREAD_CLEARED`, `CHAT_OPENED`) |
+| `src/service.ts` | Auth, heartbeat, queue — all communicate through tab roles |
+| `src/main.ts` | Registers handlers; owns `loadHistory()` scheduling |
+
+**Any change to these files must be tested with 2+ browser tabs open.**
+
+---
+
+## 🚨 Message Deduplication — Never Break the Content Fallback
+
+Live `message` events carry **no DB `_id`**. The client assigns a fake timestamp ID.  
+History responses carry the **real MongoDB `_id`**. These two IDs never match.
+
+`isDuplicateMessage` MUST fall through to the content check when the ID lookup misses:
+
+```typescript
+// ✅ CORRECT
+if (originalId) {
+    if (this.sentMessageIds.has(originalId) || this.displayedMessageIds.has(originalId)) {
+        return true;
+    }
+    // fall through → content check handles fake-ID vs real-ID mismatches
+}
+return !!this.messages.find(content + timestamp + isOwn check);
+
+// ❌ WRONG — early return kills the content fallback → duplicates in multi-tab
+if (originalId) {
+    return this.sentMessageIds.has(originalId) || this.displayedMessageIds.has(originalId);
+}
+```
+
+**Do not convert the `if` block to an early `return`.**
+
+---
+
+## 🚨 History Loading Double-Fire
+
+`HistoryManager.loadHistory()` always calls `resetPagination()`, which resets `isLoading = false`. Calling `loadHistory()` twice in quick succession sends two WS requests.  
+**Do not add extra `loadHistory()` call sites** without accounting for this.
+
+`addHistoricalMessages()` must register every processed `originalId` into `displayedMessageIds` so the second response is deduplicated at display time.
+
+---
+
+## Mandatory Test Checklist
+
+Before marking any floating-chat change as done:
+
+- [ ] Single tab — no regression
+- [ ] Two tabs (leader + follower) — no duplicate messages
+- [ ] Reconnect scenario — messages not duplicated after network restore
+- [ ] `npm run build` passes
