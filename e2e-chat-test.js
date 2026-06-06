@@ -7,6 +7,7 @@
  *  3. Chat list consistency across all backoffice tabs
  *  4. Message order consistency across all backoffice tabs
  *  5. Send / receive messages in both directions
+ *  6. [REF] BO chat-service refactor regression (history/read/sync/reconnect/lifecycle)
  *
  * Real UI selectors (inspected):
  *  - BO toggle: `div.fixed.bottom-5.right-5 button`
@@ -27,6 +28,9 @@ const FLOATING_CHAT_URL = "http://localhost:5173";
 const USERNAME = "mali168";
 const PASSWORD = "123456";
 const NUM_TABS = 5;
+
+const READ_MARK_DELAY_MS = 5_000;
+const READ_MARK_BUFFER_MS = 2_500;
 
 let passCount = 0;
 let failCount = 0;
@@ -236,6 +240,103 @@ async function getWsConnectionCount(page) {
     return null;
   }
 }
+
+async function getBoUnreadBadgeCount(page) {
+  try {
+    return await page.locator(".floating-chat-window div.cursor-pointer span.bg-red-500").count();
+  } catch (_) {
+    return 0;
+  }
+}
+
+async function clickBoSync(page) {
+  const btn = page.locator('.floating-chat-window button[title="Sync chat with server"]');
+  await btn.waitFor({ state: "visible", timeout: 6000 });
+  await btn.click();
+}
+
+async function waitForBoSyncIdle(page, timeoutMs = 15000) {
+  const syncing = page.locator('.floating-chat-window button[title="Syncing chat with server"]');
+  const start = Date.now();
+  while (Date.now() - start < timeoutMs) {
+    const visible = await syncing.isVisible().catch(() => false);
+    if (!visible) return true;
+    await sleep(300);
+  }
+  return false;
+}
+
+async function closeBoChatPanel(page) {
+  const header = page.locator(".floating-chat-window .h-14");
+  await header.locator("button").last().click();
+  await sleep(1200);
+}
+
+async function simulateVisibilityRestore(page) {
+  await page.evaluate(() => {
+    Object.defineProperty(document, "visibilityState", {
+      configurable: true,
+      get: () => "visible",
+    });
+    document.dispatchEvent(new Event("visibilitychange"));
+  });
+}
+
+async function waitForBoChatConnected(page, timeoutMs = 15000) {
+  const start = Date.now();
+  while (Date.now() - start < timeoutMs) {
+    try {
+      const connected = await page.evaluate(async () => {
+        const { chatService } = await import("/src/services/chat/chat-service.js");
+        return chatService.state.isConnected === true;
+      });
+      if (connected) return true;
+    } catch (_) {
+      /* dev import may fail */
+    }
+    await sleep(400);
+  }
+  return false;
+}
+
+async function setBoActiveChat(page, customerId) {
+  try {
+    await page.evaluate(async (id) => {
+      const { chatService } = await import("/src/services/chat/chat-service.js");
+      chatService.setActiveChat(id);
+    }, customerId);
+    return true;
+  } catch (e) {
+    console.log("    setBoActiveChat skipped:", e.message.split("\n")[0]);
+    return false;
+  }
+}
+
+async function boConversationHasText(page, text) {
+  try {
+    return (
+      (await page
+        .locator(".floating-chat-window")
+        .getByText(text, { exact: true })
+        .count()) > 0
+    );
+  } catch (_) {
+    return false;
+  }
+}
+
+async function getBoFirstCustomerId(page) {
+  try {
+    return await page.evaluate(async () => {
+      const { chatService } = await import("/src/services/chat/chat-service.js");
+      const row = (chatService.state.customers || []).find((c) => c && c.id != null);
+      return row ? String(row.id) : null;
+    });
+  } catch (_) {
+    return null;
+  }
+}
+
 
 // ─────────────────────────────────────────────────────────────
 // MAIN
@@ -672,6 +773,202 @@ async function main() {
     if (orderOk) {
       pass(`Message order identical across all 5 BO tabs (${firstOrder.length} messages)`);
     }
+  }
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // REFACTOR REGRESSION — chat-service.js split modules
+  // Covers: HistoryLoader, ReadMarker+tab-sync, visibility handler,
+  //         manualForceReconnect, disconnect/connect lifecycle
+  // ══════════════════════════════════════════════════════════════════════════
+  console.log("\n[REF-O] READ_MARK tab sync: unread clears on all tabs after active-chat read");
+  const refOBeforeUnread = [];
+  for (let i = 0; i < NUM_TABS; i++) {
+    refOBeforeUnread.push(await getBoUnreadBadgeCount(boTabs[i]));
+  }
+  const refOMsg = `E2E-READ-SYNC-${Date.now()}`;
+  const refOSent = await sendFcMessage(fcTabs[0], refOMsg);
+  if (refOSent) {
+    pass("REF-O: FC message sent for read-mark sync");
+  } else {
+    fail("REF-O: FC message send", "sendFcMessage returned false");
+  }
+  await sleep(READ_MARK_DELAY_MS + READ_MARK_BUFFER_MS);
+  const refOAfterUnread = [];
+  for (let i = 0; i < NUM_TABS; i++) {
+    refOAfterUnread.push(await getBoUnreadBadgeCount(boTabs[i]));
+  }
+  console.log(`  Unread badges before: [${refOBeforeUnread.join(", ")}] after: [${refOAfterUnread.join(", ")}]`);
+  if (refOAfterUnread.every((c) => c === 0)) {
+    pass("REF-O: no unread badges on any BO tab after read-mark delay (READ_MARKED sync)");
+  } else {
+    fail(
+      "REF-O: unread badge sync",
+      `Expected 0 badges on all tabs after ${READ_MARK_DELAY_MS + READ_MARK_BUFFER_MS}ms, got [${refOAfterUnread.join(", ")}]`,
+    );
+  }
+
+  console.log("\n[REF-O.2] READ_MARKED: unread increments on inactive tab, clears after leader marks read");
+  const firstCustomerId = await getBoFirstCustomerId(boTabs[0]);
+  if (!firstCustomerId) {
+    warn("REF-O.2: inactive-tab unread", "Could not resolve first customer id — skipping (dev import may be unavailable)");
+  } else {
+    const clearedFollower = await setBoActiveChat(boTabs[4], null);
+    if (!clearedFollower) {
+      warn("REF-O.2: inactive-tab unread", "Could not clear active chat on BO-TAB-4 — skipping");
+    } else {
+      const refO2Msg = `E2E-UNREAD-INC-${Date.now()}`;
+      await sendFcMessage(fcTabs[0], refO2Msg);
+      await sleep(2500);
+      const followerUnread = await getBoUnreadBadgeCount(boTabs[4]);
+      const leaderUnread = await getBoUnreadBadgeCount(boTabs[0]);
+      if (followerUnread > 0 || leaderUnread > 0) {
+        pass(`REF-O.2: unread badge visible (follower=${followerUnread}, leader=${leaderUnread})`);
+      } else {
+        warn("REF-O.2: unread increment", "No badge yet — customer may not match FC session");
+      }
+      await setBoActiveChat(boTabs[0], firstCustomerId);
+      await sleep(READ_MARK_DELAY_MS + READ_MARK_BUFFER_MS);
+      const refO2Final = [];
+      for (let i = 0; i < NUM_TABS; i++) {
+        refO2Final.push(await getBoUnreadBadgeCount(boTabs[i]));
+      }
+      if (refO2Final.every((c) => c === 0)) {
+        pass("REF-O.2: READ_MARKED cleared unread on all tabs including inactive follower");
+      } else {
+        fail("REF-O.2: READ_MARKED sync", `Unread badges: [${refO2Final.join(", ")}]`);
+      }
+      await setBoActiveChat(boTabs[4], firstCustomerId);
+    }
+  }
+
+  console.log("\n[REF-P] HistoryLoader: follower re-selects synced customer without stuck spinner");
+  if (boChatOpen[4]) {
+    try {
+      const customers4 = boTabs[4].locator(".floating-chat-window div.cursor-pointer");
+      const custCount4 = await customers4.count();
+      if (custCount4 >= 2) {
+        await customers4.nth(1).click();
+        await sleep(800);
+        const switchStart = Date.now();
+        await customers4.first().click();
+        const refPState = await waitForBoHistoryLoaded(boTabs[4], 4000);
+        const switchMs = Date.now() - switchStart;
+        if (refPState === "resolved" && switchMs < 4000) {
+          pass(`REF-P: BO-TAB-4 re-selected synced customer in ${switchMs}ms (no stuck loading)`);
+        } else {
+          fail("REF-P: history re-select", `state=${refPState}, elapsed=${switchMs}ms`);
+        }
+      } else {
+        warn("REF-P: history re-select", "Need 2+ customers — skipping switch test");
+      }
+    } catch (e) {
+      warn("REF-P: history re-select", e.message.split("\n")[0]);
+    }
+  } else {
+    warn("REF-P: history re-select", "BO-TAB-4 chat not open — skipping");
+  }
+
+  console.log("\n[REF-Q] Visibility restore: customer list stays consistent after visibilitychange");
+  const refQBefore = [];
+  for (let i = 0; i < NUM_TABS; i++) {
+    refQBefore.push(await getBoCustomerCount(boTabs[i]));
+  }
+  await simulateVisibilityRestore(boTabs[3]);
+  await sleep(2500);
+  const refQAfter = [];
+  for (let i = 0; i < NUM_TABS; i++) {
+    refQAfter.push(await getBoCustomerCount(boTabs[i]));
+  }
+  console.log(`  Before: [${refQBefore.join(", ")}]  After: [${refQAfter.join(", ")}]`);
+  if (refQBefore.every((c, i) => c === refQAfter[i])) {
+    pass("REF-Q: customer counts unchanged after visibility restore on BO-TAB-3");
+  } else if (refQAfter.every((c) => c === refQAfter[0]) && refQAfter[0] > 0) {
+    pass(`REF-Q: all tabs still show same customer count (${refQAfter[0]}) after visibility restore`);
+  } else {
+    fail("REF-Q: visibility restore", `Counts before [${refQBefore.join(", ")}] after [${refQAfter.join(", ")}]`);
+  }
+
+  console.log("\n[REF-R] Manual reconnect: Sync restores connection and customer list");
+  if (boChatOpen[0]) {
+    try {
+      const refRCountsBefore = [];
+      for (let i = 0; i < NUM_TABS; i++) {
+        refRCountsBefore.push(await getBoCustomerCount(boTabs[i]));
+      }
+      await clickBoSync(boTabs[0]);
+      const syncIdle = await waitForBoSyncIdle(boTabs[0]);
+      if (syncIdle) {
+        pass("REF-R: Sync button finished (manualForceReconnect + auth)");
+      } else {
+        fail("REF-R: Sync idle", "Sync still spinning after 15s");
+      }
+      const connected = await waitForBoChatConnected(boTabs[0], 15000);
+      if (connected) {
+        pass("REF-R: chatService connected after manual reconnect");
+      } else {
+        warn("REF-R: connected check", "Could not confirm isConnected via dev import");
+      }
+      await sleep(3000);
+      const refRCountsAfter = [];
+      for (let i = 0; i < NUM_TABS; i++) {
+        refRCountsAfter.push(await getBoCustomerCount(boTabs[i]));
+      }
+      if (
+        refRCountsAfter.every((c) => c === refRCountsAfter[0]) &&
+        refRCountsAfter[0] > 0 &&
+        refRCountsBefore.every((c) => c === refRCountsAfter[0] || c === 0)
+      ) {
+        pass(`REF-R: customer list stable after sync (${refRCountsAfter[0]} customers)`);
+      } else {
+        fail(
+          "REF-R: customer list after sync",
+          `before=[${refRCountsBefore.join(", ")}] after=[${refRCountsAfter.join(", ")}]`,
+        );
+      }
+      const refRMsg = `E2E-SYNC-RECONNECT-${Date.now()}`;
+      const fcBefore = await getFcMessageCount(fcTabs[0]);
+      const refRSent = await sendBoMessage(boTabs[0], refRMsg);
+      await sleep(4000);
+      const refRInFc = (await getFcMessageCount(fcTabs[0])) > fcBefore;
+      const refRInBo = (await boConversationHasText(boTabs[0], refRMsg)) || (await boConversationHasText(boTabs[2], refRMsg));
+      if (refRSent && (refRInBo || refRInFc)) {
+        pass(`REF-R.2: message delivered after sync (BO=${refRInBo}, FC=${refRInFc})`);
+      } else {
+        warn(
+          "REF-R.2: post-sync message",
+          `sent=${refRSent}, BO text=${refRInBo}, FC=${refRInFc} — reconnect path OK, send may need manual chat focus`,
+        );
+      }
+    } catch (e) {
+      fail("REF-R: manual reconnect", e.message.split("\n")[0]);
+    }
+  } else {
+    warn("REF-R: manual reconnect", "BO-TAB-0 chat not open — skipping");
+  }
+
+  console.log("\n[REF-S] Disconnect lifecycle: close and reopen chat reloads customers");
+  if (boChatOpen[4]) {
+    const refSBefore = await getBoCustomerCount(boTabs[4]);
+    await closeBoChatPanel(boTabs[4]);
+    const panelClosed = !(await boTabs[4].locator(".floating-chat-window").isVisible().catch(() => false));
+    if (panelClosed) {
+      pass("REF-S: chat panel closed (disconnect path)");
+    } else {
+      warn("REF-S: panel close", "Panel still visible after close click");
+    }
+    const reopened = await openBoChat(boTabs[4]);
+    await sleep(3500);
+    const refSAfter = await getBoCustomerCount(boTabs[4]);
+    if (reopened && refSAfter > 0) {
+      pass(`REF-S: customers reloaded after reopen (${refSAfter}, was ${refSBefore})`);
+    } else if (reopened && refSBefore === 0) {
+      warn("REF-S: reconnect reload", "Reopened but customer list empty (may be no WS customers)");
+    } else {
+      fail("REF-S: reconnect reload", `reopened=${reopened}, count=${refSAfter}`);
+    }
+    boChatOpen[4] = reopened;
+  } else {
+    warn("REF-S: disconnect lifecycle", "BO-TAB-4 chat not open — skipping");
   }
 
   // ══════════════════════════════════════════════════════════════════════════

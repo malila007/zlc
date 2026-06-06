@@ -309,7 +309,7 @@ Critical floating-chat files for tab sync safety:
 
 - `floating-chat/src/services/tab-leader.ts`
 - `floating-chat/src/services/connection-manager.ts`
-- `floating-chat/src/services/tab-sync.ts`
+- `floating-chat/src/services/tab-sync.ts` (`publishTabEvent()` / `onTabEvent()` for UI cross-tab events)
 - `floating-chat/src/service.ts`
 - `floating-chat/src/main.ts`
 
@@ -372,7 +372,7 @@ Critical backoffice tab-sync files:
 - `backoffice-frontend/src/services/chat/connection/websocket/connection-manager.js`
 - `backoffice-frontend/src/services/chat/domain/message-service.js`
 - `backoffice-frontend/src/services/chat/protocol/message-handler.js`
-- `backoffice-frontend/src/services/chat/chat-service.js`
+- `backoffice-frontend/src/services/chat/chat-service.js` (`publishTabEvent()` / `onTabEvent()` for UI cross-tab events)
 - `backoffice-frontend/src/components/chat/main/Main.vue`
 
 Mandatory backoffice tab-sync validation mindset:
