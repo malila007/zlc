@@ -926,6 +926,13 @@ async function main() {
         );
       }
       const refRMsg = `E2E-SYNC-RECONNECT-${Date.now()}`;
+      // ZLC-13: re-focus the conversation after sync so the send targets a real active chat,
+      // then assert delivery hard — sent without visible delivery is a FAIL, not a WARN.
+      const refRCustomerId = await getBoFirstCustomerId(boTabs[0]);
+      if (refRCustomerId) {
+        await setBoActiveChat(boTabs[0], refRCustomerId);
+        await sleep(1500);
+      }
       const fcBefore = await getFcMessageCount(fcTabs[0]);
       const refRSent = await sendBoMessage(boTabs[0], refRMsg);
       await sleep(4000);
@@ -934,9 +941,9 @@ async function main() {
       if (refRSent && (refRInBo || refRInFc)) {
         pass(`REF-R.2: message delivered after sync (BO=${refRInBo}, FC=${refRInFc})`);
       } else {
-        warn(
-          "REF-R.2: post-sync message",
-          `sent=${refRSent}, BO text=${refRInBo}, FC=${refRInFc} — reconnect path OK, send may need manual chat focus`,
+        fail(
+          "REF-R.2: post-sync message delivery",
+          `sent=${refRSent}, BO text=${refRInBo}, FC=${refRInFc}, activeChat=${refRCustomerId ?? "unresolved"}`,
         );
       }
     } catch (e) {
