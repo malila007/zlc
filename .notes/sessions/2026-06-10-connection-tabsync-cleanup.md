@@ -20,6 +20,14 @@
 - **E2E gate เต็ม (local ทั้งสามฝั่ง): PASS 66 / FAIL 0 / WARN 1 / TOTAL 67** — `REF-R.2` เขียว (BO=true, FC=true) และ WARN "connected check" หลัง Sync หายไปด้วย (หลักฐานว่า deadlock fix จริง). WARN เดียวที่เหลือ = REF-O.2 unread timing (flake เดิม ไม่ block).
 - บั๊ก Sync ยืนยันด้วยหลักฐาน: ข้อความ REF-R.2 ไม่ลง Mongo local เลย (pending ค้าง) ก่อนแก้ → ลงครบหลังแก้.
 
+## Release-readiness verification (เพิ่มรอบบ่าย — browser automation แทน manual)
+- **P0 `E2E-CHAT-SHARED-INBOX-VMB-MALI` ผ่านครบ**: login `vmb` + `mali168` คนละ context, 2 BO tabs/account + 2 FC tabs — ทุก tab `agentId="vmb"`, `isConnected=true`; FC→เห็นครบทั้ง 4 BO tabs; `vmb`→FC ได้รับ + `mali168` เห็น; `mali168`→FC ได้รับ + `vmb` เห็น (ห้องเดียวกันยืนยันแล้ว)
+- **Leader hand-off ผ่าน**: navigate ออก (unmount→disconnect→release) → tab อื่นรับช่วง + connected, socket ไม่ fan-out (4→4); ปิด tab ทั้ง tab → รับช่วงเช่นกัน
+- **ZLC-16 cold-start ผ่าน**: kill chat-service → เปิดหน้า FC ใหม่ → restart server → widget กลับมาส่งข้อความได้เอง**โดยไม่ refresh**
+- backoffice `npm run build` ผ่าน (รวม 2 commits ล่าสุด)
+- ข้อค้นพบระหว่างทดสอบ (ไม่ใช่บั๊ก): ปุ่ม X ของ chat panel = `toggleChat` ซ่อน UI เท่านั้น ไม่ disconnect; `hasChatOpen` ใน `Main.vue` คือ permission `HAS_CHAT_OPEN` ไม่ใช่สถานะ panel; `chatService.disconnect()` เกิดตอน unmount/permission flip เท่านั้น
+- สคริปต์ verify อยู่ที่ `/tmp/readiness-verify*.js` (one-off ไม่เก็บเข้า repo ตามแนว lean); `.env` คืนค่า prod แล้ว (byte-identical); dev servers ปิดแล้ว
+
 ## Open / next steps
 - Manual ≥2-tab checks ก่อน prod (ZLC-14 hand-off + ZLC-19 Sync + ZLC-16 cold-start) ตาม checklist ใน `.cursor/rules/backoffice-chat-tab-sync.mdc`.
 - หลัง deploy floating-chat: purge Cloudflare cache `/cdn/floating-chat.iife.js`.
