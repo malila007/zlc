@@ -74,9 +74,15 @@ NODE_PATH=/home/togethel2/.npm/_npx/e41f203b7505f1fb/node_modules \
   node /home/togethel2/workspace/zigma/chat/e2e-chat-test.js
 ```
 
-Requires: `backoffice-frontend` on `:3000`, `floating-chat` on `:5173`, `chat-service` on `:3333` with `CHAT_ENABLED=true`. Login: `mali168` / `123456`.
+Requires: `backoffice-frontend` on `:3000`, `floating-chat` on `:5173`, `chat-service` on `:3333` with `CHAT_ENABLED=true`. Logins: `mali168` / `123456`; `vmb` / `#10_fvo@$10C+`.
 **Both frontends must point at local chat** — `backoffice-frontend/.env` `VITE_WS_CHAT_URL` and `floating-chat/.env` `SERVER_URL` = `ws://localhost:3333/ws`. If BO points at prod while FC points local, every cross-system check fails (12 bogus FAILs, and BO test messages land on prod). Changing the backoffice value still requires asking the user first (env file is off-limits); restore it afterwards.
 Local `.env` has `CHAT_ENABLED=false` — temporarily flip + `touch chat-service/src/index.ts` to reload before running, then restore. Deploy checklist: `.feat/bc-log/deploy-2026-05-16.md`.
+
+Critical shared-inbox E2E testcase:
+
+| Test case ID | Scenario | Precondition | Steps | Expected result | Priority | Test type |
+|--------------|----------|--------------|-------|-----------------|----------|-----------|
+| E2E-CHAT-SHARED-INBOX-VMB-MALI | `vmb` and `mali168` must behave like one shared backoffice inbox for floating-chat conversations. | BO, FC, and chat-service are all pointed at the same chat-service origin; `CHAT_ENABLED=true`; floating-chat initializes with `token: "vmb"` and `recipientId: "vmb"`. | 1. Login `vmb` in one browser context. 2. Login `mali168` in a separate/incognito context. 3. Open at least two BO tabs for each account. 4. Open at least two floating-chat tabs for one customer. 5. Send floating -> BO. 6. Send `vmb` -> floating. 7. Send `mali168` -> floating. 8. Keep all tabs open while checking state. | Both BO accounts resolve and connect as `agentId: "vmb"`; the same customer appears in every BO tab; all messages appear in the same conversation across `vmb`, `mali168`, and floating tabs; every BO tab ends with `isConnected: true` and `isConnecting: false`; no slow, stuck, or dropped chat connection is observed. | P0 | Integration / regression / multi-tab |
 
 ### Local dev defaults that differ from production
 
