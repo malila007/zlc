@@ -75,6 +75,7 @@ NODE_PATH=/home/togethel2/.npm/_npx/e41f203b7505f1fb/node_modules \
 ```
 
 Requires: `backoffice-frontend` on `:3000`, `floating-chat` on `:5173`, `chat-service` on `:3333` with `CHAT_ENABLED=true`. Login: `mali168` / `123456`.
+**Both frontends must point at local chat** — `backoffice-frontend/.env` `VITE_WS_CHAT_URL` and `floating-chat/.env` `SERVER_URL` = `ws://localhost:3333/ws`. If BO points at prod while FC points local, every cross-system check fails (12 bogus FAILs, and BO test messages land on prod). Changing the backoffice value still requires asking the user first (env file is off-limits); restore it afterwards.
 Local `.env` has `CHAT_ENABLED=false` — temporarily flip + `touch chat-service/src/index.ts` to reload before running, then restore. Deploy checklist: `.feat/bc-log/deploy-2026-05-16.md`.
 
 ### Local dev defaults that differ from production
