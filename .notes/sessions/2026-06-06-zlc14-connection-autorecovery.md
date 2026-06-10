@@ -45,6 +45,11 @@ Root pattern: backoffice client connections bind to login-derived identity and h
 - Branch: `fix/zlc-14-connection-autorecovery` (not committed/pushed — awaiting user).
 - Highest-priority area (connection/tab-sync) touched — A4 (tab-leader) is the main regression risk; verify with ≥2 tabs before merge.
 
+## Post-review fix (2026-06-06)
+- Reviewer verdict: CONDITIONAL GO. Fixed reviewer **M1** only (per user): `auth-handler.js` `_retryOrGiveUp` setTimeout id was unstored → uncancelable. Now stored in `this._retryTimer`, cleared in `reset()` + `authenticate()` + `_giveUpAndReconnect()`, and self-nulled on fire. `node --check` clean.
+- **Not done (user decided):** S1 (`socket.config.js` `off()` anon refs no-op), S2 (jitter applied after cap → max delay = cap×1.5). E2E gate **skipped** this round. No deploy — user deploys themselves.
+- State: ZLC-14 already merged to `backoffice-frontend` `master` (`71e4d335`), local master 2 ahead of origin; M1 fix is an **uncommitted** working-tree change on master.
+
 ## Notes for next session
 - ZLC-12 (In Review) already tracks `socket.config.js`; this change supersedes part of that for the noti socket. Reconcile when ZLC-12 lands.
 - If E2E flakes on reconnect timing, the backoff base/cap live in `config.js` (`RECONNECT_BACKOFF_*`).

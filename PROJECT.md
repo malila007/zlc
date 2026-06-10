@@ -12,8 +12,7 @@ Read in order:
 
 1. `PROJECT.md` (this file)
 2. The assigned `.feat/<release>/` folder or plan — **only if the user assigned one** (current: `bc-log/`). Release workflow: `.feat/README.md`.
-3. `chat-service/DOCUMENT.md` when present — currently missing; treat as required only when present.
-4. `.cursor/rules/floating-chat-tab-sync.mdc` when editing `floating-chat/src`; `.cursor/rules/backoffice-chat-tab-sync.mdc` for backoffice chat.
+3. `.cursor/rules/floating-chat-tab-sync.mdc` when editing `floating-chat/src`; `.cursor/rules/backoffice-chat-tab-sync.mdc` for backoffice chat.
 
 **Docs on change** (single source — do not restate this table elsewhere):
 
@@ -21,8 +20,6 @@ Read in order:
 |--------|--------|
 | Business / protocol / prod behavior | `PROJECT.md` |
 | Active release only | `.feat/<release>/` (delete after prod; promote durable facts here first) |
-| WebSocket / REST contract | `chat-service/DOCUMENT.md`, or `PROJECT.md` until it is restored |
-| Tab-sync | `.cursor/rules/*-tab-sync.mdc` |
 
 ## Constraints and Working Rules
 
@@ -31,6 +28,28 @@ These rules exist because of past incidents or explicit user decisions. Follow t
 ### Highest-priority areas
 
 Connection, chat messaging, and chat-room behavior are the most important parts of this system. Never ship a change that risks regressing them. Verify with the E2E suite and the `vmb` agent inbox (operator `mali168`) before any release. Treat tab sync, presence, unread counts, and message delivery as the core paths to protect.
+
+### Chat inbox identity must stay in the username namespace (never `MEMBER_TOKEN`)
+
+The backoffice chat inbox id is resolved in `backoffice-frontend/src/services/chat/identity/inbox-id.js` (`resolveChatInboxId`) from the `GET /api/v1/me` (`backoffice-api.zixma.co/api/v1/me`) user object. The shared inbox routing id is the **parent agent username** in the username namespace (e.g. `vmb`, `mvp4`, … — whatever that agent's `MEMBER_USERNAME` is). A parent plus all its sub operators MUST resolve to that one value so they see the same room.
+
+Field contract from real `GET /api/v1/me` (`backoffice-api.zixma.co/api/v1/me`), with the **only** correct resolution:
+
+| Field | Example (`vmb`, non-sub) | Example (`mali168`, sub of `vmb`) | Role in routing |
+|-------|--------------------------|-----------------------------------|-----------------|
+| `MEMBER_USERNAME` | `vmb` | `mali168` | Inbox id for a **non-sub** account only. A sub's own username is **not** the inbox id. |
+| `MEMBER_TYPE` | `super_senior` | `sub` | `"sub"` ⇒ sub branch; anything else ⇒ non-sub branch. |
+| `MEMBER_UPLINE_ID` | `vm` | **`vmb`** | **Sub:** shared inbox id = the **parent agent's username** (`MEMBER_USERNAME` of the owning agent). The API returns this in the username namespace — enforced server-side, not a frontend guess. Value depends on which agent owns the sub (e.g. `vmb` here because `mali168` belongs to `vmb`; another sub might get `mvp4`). **Non-sub:** that account's upline — **not** its own inbox; never use for non-sub routing. |
+| `MEMBER_TOKEN` | `OwAnwE` | `""` | Random token or empty. **Never** a routing id. |
+| `MEMBER_USERNAME_LOGIN` | `agentdemo` | `mali168` | Login credential only; not the inbox id. |
+
+Sub `me()` example (verified for `mali168` under agent `vmb`): `MEMBER_TYPE: "sub"`, `MEMBER_USERNAME: "mali168"`, `MEMBER_UPLINE_ID: "vmb"`, `MEMBER_TOKEN: ""`. Another sub under agent `mvp4` would have `MEMBER_UPLINE_ID: "mvp4"`.
+
+Hard rules:
+
+- **Sub** (`MEMBER_TYPE === "sub"`) → `MEMBER_UPLINE_ID` (parent agent username from API). Do **not** hardcode a specific agent name, and do **not** substitute `MEMBER_TOKEN`, `MEMBER_USERNAME`, or any other field.
+- **Non-sub** → env override → `agent_username` → `MEMBER_USERNAME` → `username`. Never `MEMBER_TOKEN`, never the non-sub's own `MEMBER_UPLINE_ID` (e.g. `vmb` non-sub has `MEMBER_UPLINE_ID: "vm"` — using it would route to the wrong inbox).
+- Do **not** reintroduce `MEMBER_TOKEN` (or any non–username-namespace value) into `resolveChatInboxId`. Doing so splits a parent from its subs into different inboxes — the "vmb vs mali168 see different chats" bug (regressed in `3149c356`, fixed 2026-06-09). Covered by `inbox-id.test.mjs`; keep it green.
 
 ### Self-review before handoff
 
@@ -110,8 +129,8 @@ In practice:
 
 Backoffice chat identity:
 
-- The backoffice chat module must authenticate to `chat-service` with the shared inbox / agent token identity, e.g. `MEMBER_TOKEN` (`vmb`), not the logged-in operator username such as `mali168`.
-- In `backoffice-frontend`, sub users must resolve to their parent inbox via `MEMBER_UPLINE_ID` first (e.g. `mali18` under `vmb` sees the same `vmb` inbox). Non-sub users resolve from `MEMBER_TOKEN`. Operator username is only metadata such as `requestedBy`, not the WebSocket `userId` / `token` for the shared inbox.
+- The backoffice chat module authenticates to `chat-service` with the shared inbox identity in the **username namespace**, e.g. `vmb` — see the hard rule *Chat inbox identity must stay in the username namespace* under Constraints for the full field contract and resolution order.
+- Operator username is only metadata such as `requestedBy`, not the WebSocket `userId` / `token` for the shared inbox.
 
 ## Backend Summary
 

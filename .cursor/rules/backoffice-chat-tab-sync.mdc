@@ -20,6 +20,8 @@ alwaysApply: false
 - Follower tabs must communicate through `BroadcastChannel`.
 - Web Locks is the preferred leader election path.
 - The localStorage heartbeat fallback must still elect one leader when Web Locks is unavailable.
+- **Leadership follows connect/disconnect intent.** `initTabLeadership()` returns a `{ release, reacquire }` handle. `BcTransport.disconnect()` must call `release()` (resolve the held Web Lock so a waiting tab takes over, then step down to follower) and `connect()` must call `reacquire()` (re-enter the race; if another tab leads, stay follower). A leader that disconnects but keeps its tab open MUST hand off — never hold the lock with no socket, or follower tabs go silent. After `release()` the tab must be a follower so a later `connect()` cannot open a second socket before re-acquiring (single-socket invariant). Validate with ≥2 tabs.
+- **Never call `initTabLeadership()` twice in one tab.** `forceClaimLeadership()` (Sync button) must NOT re-init the election machine: the old machine still holds the Web Lock, so the new request demotes the tab to follower, tears down its socket, and no tab can ever lead again (fixed 2026-06-10; was killing every socket in the profile). Sync = leader does `forceReconnect()`, follower does `requestLeaderReconnect()` (`FORCE_RECONNECT` relay). E2E `REF-R.2` guards this path and is a hard FAIL.
 
 Critical files:
 
