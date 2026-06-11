@@ -20,6 +20,7 @@ The widget uses a **leader/follower** multi-tab model:
 
 - **Leader tab** holds the real WebSocket; relays all WS events via `BroadcastChannel`.
 - **Follower tab** has no socket; receives everything through the channel.
+- Web Locks followers must probe the leader before stealing: watchdog → `LEADER_PING` → wait for `LEADER_PONG` → steal only on silence. A stale leader that receives `LEADER_TAKEOVER` must demote through `onFollow()`.
 
 Critical files — extra care required:
 
@@ -35,12 +36,13 @@ Critical files — extra care required:
 
 ---
 
-## 🚨 Message Deduplication — Never Break the Content Fallback
+## 🚨 Message Deduplication — Keep the Provenance-Scoped Fallback
 
-Live `message` events carry **no DB `_id`**. The client assigns a fake timestamp ID.  
-History responses carry the **real MongoDB `_id`**. These two IDs never match.
+Current live `message` and `message_sent` events carry the server id, and history carries the same id. Different real server ids are different messages even when content, direction, and timestamp match.
 
-`isDuplicateMessage` MUST fall through to the content check when the ID lookup misses:
+The content+timestamp+direction fallback is only for legacy/edge cases where one side lacks a server id, such as a live message rendered with a client fallback id before history returns the real MongoDB `_id`.
+
+`isDuplicateMessage` MUST keep id-first deduplication and only use content fallback when either side lacks `hasServerId`:
 
 ```typescript
 // ✅ CORRECT
@@ -48,17 +50,14 @@ if (originalId) {
     if (this.sentMessageIds.has(originalId) || this.displayedMessageIds.has(originalId)) {
         return true;
     }
-    // fall through → content check handles fake-ID vs real-ID mismatches
 }
-return !!this.messages.find(content + timestamp + isOwn check);
+return !!this.messages.find(content + timestamp + isOwn check + missing-server-id check);
 
-// ❌ WRONG — early return kills the content fallback → duplicates in multi-tab
-if (originalId) {
-    return this.sentMessageIds.has(originalId) || this.displayedMessageIds.has(originalId);
-}
+// ❌ WRONG — content fallback hides intentional repeated text with different real ids
+return !!this.messages.find(content + timestamp + isOwn check);
 ```
 
-**Do not convert the `if` block to an early `return`.**
+**Do not apply content fallback when both messages have real server ids.**
 
 ---
 
@@ -77,5 +76,6 @@ Before marking any floating-chat change as done:
 
 - [ ] Single tab — no regression
 - [ ] Two tabs (leader + follower) — no duplicate messages
+- [ ] Zombie leader takeover — silent leader is stolen, old leader demotes after wake
 - [ ] Reconnect scenario — messages not duplicated after network restore
 - [ ] `npm run build` passes

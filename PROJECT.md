@@ -230,7 +230,9 @@ Primary message types used by the shared system:
 
 Important behavior:
 
+- Duplicate `authenticate` frames received while the first authentication is still in flight are ignored and logged as `AUTH_IN_PROGRESS`; the server commits presence, connection counters, heartbeat, and `authenticated` response only once per socket.
 - `message_sent` is broadcast to the sender's own connections.
+- `message` requests may carry an optional `clientId` (string, ≤64 chars; invalid values are silently ignored). The server echoes it back in `message_sent` only — never in the recipient `message` payload and never persisted — so the sending tab can match its own pending queue. `message_sent` reaches every socket of the shared inbox userId, so clients must only act on a `clientId` they generated.
 - `message` is broadcast to the recipient's active connections if online.
 - `broadcastToUser` supports multi-tab/multi-device by sending to all sockets for a user.
 - `error.code` differentiates pre-auth protection reasons: `IP_RATE_LIMITED` (attempt throttling) vs `SERVICE_CAPACITY_REACHED` (global capacity), and keeps `CONNECTION_LIMIT_REACHED` for per-customer post-auth limits.
@@ -238,8 +240,10 @@ Important behavior:
 
 History response difference:
 
-- Agent history is returned as a plain message array.
-- Customer history is wrapped and also includes `unreadByCustomer`.
+- `history` response payload is `{ messages, conversationWith?, unreadByCustomer? }`.
+- `conversationWith` echoes the request value so clients can merge history into the intended room even if the user switches rooms before the response arrives.
+- Customer history also includes `unreadByCustomer`.
+- Backoffice must keep a legacy fallback for older servers that still return a plain message array; deploy the compatible backoffice bundle before deploying a server that returns the object payload.
 
 ## Monitoring / Metrics
 
@@ -318,6 +322,8 @@ Important architecture detail:
 - The widget uses browser tab leadership with `BroadcastChannel`.
 - Only one tab should own the real WebSocket.
 - Follower tabs proxy through the leader and receive events through `BroadcastChannel`.
+- In the Web Locks path, a follower waiting behind a stuck holder probes the leader on a per-scope control channel before stealing the lock; steal is allowed only after `LEADER_PING` gets no `LEADER_PONG`, and an old leader that later receives `LEADER_TAKEOVER` must demote through `onFollow()`.
+- The localStorage fallback keeps its heartbeat staleness election and is separate from the Web Locks takeover path.
 - This is a high-priority operational safeguard, not just a UX pattern.
 - The reason is to prevent duplicate socket connections from many tabs and reduce server load.
 - Preserve this invariant to stop socket fan-out and protect the backend.
@@ -328,7 +334,7 @@ Tab sync risk note from `.cursor/rules/floating-chat-tab-sync.mdc`:
 - any change in `floating-chat/src/` that affects leadership, socket role switching, or shared event flow must be treated carefully
 - changes should be tested with 2 or more tabs open
 - do not casually add new `loadHistory()` call sites
-- do not break content-based message dedup fallback
+- do not break the provenance-scoped message dedup fallback; content matching applies only when one side lacks a server id
 - broken dedup or broken tab sync creates duplicate messages and unnecessary socket pressure
 
 Critical floating-chat files for tab sync safety:
@@ -389,8 +395,8 @@ Important architecture detail:
 - Multiple admins/devices may connect to the same backoffice chat scope and must not be blocked by a low per-user backend cap on `role: "agent"`.
 - Backend per-user connection limits should protect customer/widget fan-out, while agent/backoffice connections remain governed by global/IP limits plus frontend tab sync.
 - Backoffice follower sends must use ACK/NACK or timeout retry handling so messages are not silently lost during leader reconnect.
-- Pending outbound message deduplication must use a per-message retry/client id, not only `to + content + messageType`, because operators can intentionally send identical text twice.
-- Internal retry/client ids are frontend-only unless the backend WebSocket contract explicitly supports them.
+- Pending outbound message deduplication must use a per-message retry/client id, not only `to + content + messageType`, because operators can intentionally send identical text twice. Implemented: the backoffice sends `clientId` on each `message` and removes a pending entry only when `message_sent` echoes that exact id; `to + content` matching remains only as the fallback for servers that do not echo `clientId`.
+- The backend WebSocket contract supports `clientId` on `message` / `message_sent` (echo-only, never persisted). Do not attach other internal frontend ids to WS messages without extending the contract first.
 
 Critical backoffice tab-sync files:
 
@@ -410,7 +416,7 @@ Mandatory backoffice tab-sync validation mindset:
 - repeated identical outbound text should not be dropped while offline/reconnecting
 - live messages, `message_sent`, and history refresh should remain timestamp-sorted
 - multiple admins/devices sharing the same `agent_username` should not be blocked by per-user backend caps
-- follower tabs must mirror history when the leader tab receives it: leader publishes `HISTORY_RECEIVED` on UI `tab-sync.js` with `{ customerId, messages }` (including empty threads); leader tracks `conversationWith` on outbound `history` WS sends (`takePendingHistoryKey`) so follower-originated requests still resolve; treat `state.messages[customerId]` as loaded when the key exists even if the array is empty
+- follower tabs must mirror history when the leader tab receives it: leader publishes `HISTORY_RECEIVED` on UI `tab-sync.js` with `{ customerId, messages }` (including empty threads); history responses should use echoed `conversationWith` as the primary merge key, while `historyLoadingFor` / `takePendingHistoryKey` remain fallbacks for older servers that return plain arrays; treat `state.messages[customerId]` as loaded when the key exists even if the array is empty
 
 ## Image Flow
 
