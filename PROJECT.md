@@ -132,6 +132,7 @@ In practice:
 - `chat-service` is the chat engine.
 - `floating-chat` is the customer client.
   - Optional **action bar / sub-views** (e.g. deposit slip, withdraw) are toggled at embed time via `init({ features: ChatFeature[] })`. Types live in `floating-chat/src/types/api.ts`; how to add a new feature is documented in **`floating-chat/README.md`** (section *Optional features (action bar)*).
+  - **slipVerify** calls two external APIs directly from the widget (player-api `get-deposit`, backoffice `deposit-by-slip-th`) using `init({ accessToken })` + build-time `PLAYER_API_URL` / `BACK_OFFICE_API_URL` env; the pill hides itself when any of these is missing. See `floating-chat/README.md` → *slipVerify (deposit by slip)*.
 - `backoffice-frontend` chat is the agent client.
 
 Backoffice chat identity:
@@ -234,6 +235,7 @@ Important behavior:
 - `message_sent` is broadcast to the sender's own connections.
 - `message` requests may carry an optional `clientId` (string, ≤64 chars; invalid values are silently ignored). The server echoes it back in `message_sent` only — never in the recipient `message` payload and never persisted — so the sending tab can match its own pending queue. `message_sent` reaches every socket of the shared inbox userId, so clients must only act on a `clientId` they generated.
 - `message` is broadcast to the recipient's active connections if online.
+- `messageType` is allowlisted server-side: `text`, `image`, `deposit_slip` — anything else gets an `error` ("Invalid message type"). `deposit_slip` carries a JSON string `content`: `{ imageUrl?, amount, bank, accountTail, status: 'success'|'failed', resultMessage }` (deposit-by-slip result card; `accountTail` = last 4 digits only). Floating-chat sends it after the slipVerify flow; both frontends render it as a deposit card and fall back to plain text when the JSON does not parse. Backoffice customer-list previews show "แจ้งฝากแนบสลิป" instead of the raw JSON.
 - `broadcastToUser` supports multi-tab/multi-device by sending to all sockets for a user.
 - `error.code` differentiates pre-auth protection reasons: `IP_RATE_LIMITED` (attempt throttling) vs `SERVICE_CAPACITY_REACHED` (global capacity), and keeps `CONNECTION_LIMIT_REACHED` for per-customer post-auth limits.
 - Agent and customer history payloads are not identical.
