@@ -1,0 +1,11 @@
+- main [ref=e5]:
+  - generic [ref=e9]:
+    - generic [ref=e10]:
+      - generic:
+        - img "EZ Slot"
+      - textbox "Username" [ref=e11]: mali168
+    - generic [ref=e12]:
+      - generic:
+        - img "EZ Slot"
+      - textbox "Password" [active] [ref=e13]: "123456"
+    - img [ref=e20]

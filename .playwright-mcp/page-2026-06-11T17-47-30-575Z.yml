@@ -1,0 +1,61 @@
+- generic [ref=e2]:
+  - generic [ref=e3]:
+    - heading "🎯 Floating Chat Widget" [level=1] [ref=e4]
+    - paragraph [ref=e5]: Development page - Click the floating chat button in the bottom right to start chatting!
+  - generic [ref=e6]:
+    - generic:
+      - generic:
+        - img [ref=e23]
+        - generic [ref=e25]:
+          - generic [ref=e26]:
+            - generic [ref=e27]:
+              - img [ref=e29]
+              - generic [ref=e31]:
+                - generic [ref=e32]: คุยกับทีมงานนะ
+                - generic [ref=e33]: ● Online
+            - button [ref=e34] [cursor=pointer]:
+              - img [ref=e35]
+          - toolbar "ฟังก์ชันเพิ่มเติม" [ref=e37]:
+            - button "กลับไปแชท" [ref=e203] [cursor=pointer]:
+              - img [ref=e204]
+          - generic [ref=e210]:
+            - generic [ref=e211]:
+              - generic [ref=e212]: บัญชีของคุณ
+              - generic [ref=e214]:
+                - generic [ref=e215]: ธนาคารกรุงเทพ (BBL)
+                - generic [ref=e216]: "1307350452"
+                - generic [ref=e217]: วิลาวัลย์ ประเสริญศรี
+            - generic [ref=e218]:
+              - generic [ref=e219]: โอนเข้าบัญชี
+              - generic [ref=e220]:
+                - generic [ref=e221]:
+                  - generic [ref=e222]: ธนาคารออมสิน (GSB)
+                  - generic [ref=e223]: "020475195176"
+                  - generic [ref=e224]: นายศุภมิตร ไชยเพชร
+                - button "คัดลอก" [ref=e225] [cursor=pointer]
+            - generic [ref=e226]:
+              - generic [ref=e227]: จำนวนเงิน (บาท)
+              - textbox "จำนวนเงิน (บาท)" [ref=e228]:
+                - /placeholder: "0.00"
+            - generic [ref=e229]:
+              - generic [ref=e230]: สลิปการโอนเงิน
+              - generic [ref=e231] [cursor=pointer]:
+                - button "คลิกเพื่อแนบสลิป รองรับไฟล์ png, jpg, jpeg, webp, svg"
+                - generic [ref=e232]:
+                  - img [ref=e233]
+                  - generic [ref=e235]:
+                    - strong [ref=e236]: คลิกเพื่อแนบสลิป
+                    - generic [ref=e237]: รองรับไฟล์ png, jpg, jpeg, webp, svg
+            - generic [ref=e238]:
+              - button "ยกเลิก" [ref=e239] [cursor=pointer]
+              - button "แจ้งฝาก" [ref=e240] [cursor=pointer]
+    - generic [ref=e14]:
+      - heading "💡 Development Notes" [level=3] [ref=e15]
+      - paragraph [ref=e16]: The floating chat widget is now active. Click the chat button in the bottom-right corner to open the chat interface.
+      - heading "Current Configuration:" [level=4] [ref=e17]
+      - generic [ref=e18]: "window.FloatingChat.init({ target: '#chat-container', title: 'Backoffice Support', primaryColor: '#007bff', secondaryColor: '#0056b3' });"
+      - paragraph [ref=e19]:
+        - strong [ref=e20]: "Next Steps:"
+        - text: You can now modify the configuration in the script below or edit the widget code in
+        - code [ref=e21]: src/
+        - text: folder.

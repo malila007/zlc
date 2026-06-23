@@ -1,0 +1,553 @@
+- generic [ref=e3]:
+  - generic [ref=e26]:
+    - generic [ref=e27]:
+      - link "ZanisBet" [ref=e28] [cursor=pointer]:
+        - /url: /dashboard
+        - img [ref=e29]
+        - generic [ref=e30]: ZanisBet
+      - link [ref=e32] [cursor=pointer]:
+        - /url: javascript:void(0)
+        - img [ref=e33]
+      - list [ref=e36]:
+        - listitem [ref=e37]:
+          - link "เครดิต 1,013,439.00" [ref=e38] [cursor=pointer]:
+            - /url: javascript:;
+            - generic [ref=e40]:
+              - generic [ref=e41]: เครดิต
+              - generic [ref=e43]:
+                - text: 1,013,439.00
+                - button [ref=e44]:
+                  - img [ref=e45]
+      - list [ref=e50]:
+        - listitem [ref=e51]:
+          - link "แดชบอร์ด" [ref=e52] [cursor=pointer]:
+            - /url: /dashboard
+            - img [ref=e53]
+            - generic [ref=e56]: แดชบอร์ด
+      - list [ref=e57]:
+        - listitem [ref=e58]:
+          - link "รายงานแบล็คลิส" [ref=e59] [cursor=pointer]:
+            - /url: /blacklist
+            - img [ref=e60]
+            - generic [ref=e64]: รายงานแบล็คลิส
+      - list [ref=e65]:
+        - listitem [ref=e66]:
+          - generic [ref=e67]:
+            - img [ref=e69]
+            - generic [ref=e72]:
+              - text: ระบบจัดการเอเย่น
+              - img [ref=e74]
+        - listitem [ref=e76]:
+          - generic [ref=e77]:
+            - img [ref=e79]
+            - generic [ref=e81]:
+              - text: 1. ระบบพันธมิตร
+              - img [ref=e83]
+        - listitem [ref=e85]:
+          - generic [ref=e86]:
+            - img [ref=e88]
+            - generic [ref=e93]:
+              - text: 2. ระบบจัดการสมาชิก
+              - img [ref=e95]
+        - listitem [ref=e97]:
+          - generic [ref=e98]:
+            - img [ref=e100]
+            - generic [ref=e102]:
+              - text: 3. ธุรกรรมการเงิน
+              - img [ref=e104]
+        - listitem [ref=e106]:
+          - generic [ref=e107]:
+            - img [ref=e109]
+            - generic [ref=e111]:
+              - text: 4. รายงานสมาชิก
+              - img [ref=e113]
+        - listitem [ref=e115]:
+          - generic [ref=e116]:
+            - img [ref=e118]
+            - generic [ref=e120]:
+              - text: 5. รายงานเว็บไซต์
+              - img [ref=e122]
+        - listitem [ref=e124]:
+          - generic [ref=e125]:
+            - img [ref=e127]
+            - generic [ref=e130]:
+              - text: 6. ตั้งค่าเว็บไซค์
+              - img [ref=e132]
+        - listitem [ref=e134]:
+          - generic [ref=e135]:
+            - img [ref=e137]
+            - generic [ref=e140]:
+              - text: 7. ตั้งค่า
+              - img [ref=e142]
+        - listitem [ref=e144]:
+          - generic [ref=e145]:
+            - img [ref=e147]
+            - generic [ref=e150]:
+              - text: 8. ระบบการตลาด
+              - img [ref=e152]
+    - generic [ref=e154]:
+      - generic [ref=e157]:
+        - navigation "breadcrumb" [ref=e158]:
+          - list [ref=e159]
+        - button "รอฝาก 0 รอถอน 0" [ref=e161] [cursor=pointer]:
+          - button "รอฝาก 0" [ref=e162]:
+            - img [ref=e163]
+            - text: รอฝาก
+            - generic [ref=e166]: "0"
+          - button "รอถอน 0" [ref=e167]:
+            - img [ref=e168]
+            - text: รอถอน
+            - generic [ref=e171]: "0"
+        - button "ขาดการเขื่อมต่อ" [ref=e174] [cursor=pointer]:
+          - generic [ref=e175]:
+            - img [ref=e176]
+            - generic [ref=e183]: ขาดการเขื่อมต่อ
+        - navigation [ref=e187]:
+          - combobox [ref=e188]:
+            - option "TH" [selected]
+            - option "EN"
+        - img [ref=e190]
+        - generic [ref=e197]:
+          - img [ref=e198]
+          - generic [ref=e200]: "0"
+        - button [ref=e203] [cursor=pointer]:
+          - img [ref=e204]
+        - link "mali168" [ref=e206] [cursor=pointer]:
+          - /url: javascript:;
+      - generic [ref=e207]:
+        - generic [ref=e209]:
+          - button "รายงานการเงิน" [ref=e210] [cursor=pointer]
+          - button "รายงานคน Online" [ref=e211] [cursor=pointer]
+        - generic [ref=e213]:
+          - generic [ref=e214]:
+            - generic [ref=e216]:
+              - generic [ref=e217]:
+                - generic [ref=e218]:
+                  - generic [ref=e219]: เริ่ม
+                  - textbox [ref=e220]: 2026-06-12
+                  - textbox [ref=e221]: 00:00:00
+                - generic [ref=e222]:
+                  - generic [ref=e223]: ถึง
+                  - textbox [ref=e224]: 2026-06-12
+                  - textbox [ref=e225]: 23:59:59
+                - button "ค้นหา" [ref=e226] [cursor=pointer]
+              - generic [ref=e228]:
+                - button "วันนี้" [ref=e229] [cursor=pointer]:
+                  - img [ref=e230]
+                  - text: วันนี้
+                - button "เมื่อวาน" [ref=e233] [cursor=pointer]:
+                  - img [ref=e234]
+                  - text: เมื่อวาน
+                - button "เดือนนี้" [ref=e237] [cursor=pointer]:
+                  - img [ref=e238]
+                  - text: เดือนนี้
+                - button "เดือนก่อนหน้านี้" [ref=e241] [cursor=pointer]:
+                  - img [ref=e242]
+                  - text: เดือนก่อนหน้านี้
+            - generic [ref=e245]:
+              - generic [ref=e247] [cursor=pointer]:
+                - button [ref=e248]:
+                  - img [ref=e253]
+                - generic [ref=e260]: ยอดโบนัส
+              - generic [ref=e262] [cursor=pointer]:
+                - button [ref=e263]:
+                  - img [ref=e268]
+                - generic [ref=e273]: ปรับลดเครดิต
+              - generic [ref=e275] [cursor=pointer]:
+                - button [ref=e276]:
+                  - img [ref=e281]
+                - generic [ref=e286]: ฝากรอตรวจสอบ
+              - generic [ref=e288] [cursor=pointer]:
+                - button [ref=e289]:
+                  - img [ref=e294]
+                - generic [ref=e298]: ถอนรอตรวจสอบ
+              - generic [ref=e300] [cursor=pointer]:
+                - button [ref=e301]:
+                  - img [ref=e306]
+                - generic [ref=e310]: ยอดรวมรายการถอนที่ยกเลิก
+              - generic [ref=e312] [cursor=pointer]:
+                - button [ref=e313]:
+                  - img [ref=e318]
+                - generic [ref=e322]: สมาชิกสมัครใหม่
+              - generic [ref=e324] [cursor=pointer]:
+                - button [ref=e325]:
+                  - img [ref=e330]
+                - generic [ref=e334]: สมาชิกใหม่เติมเงิน
+              - generic [ref=e336] [cursor=pointer]:
+                - button [ref=e337]:
+                  - img [ref=e342]
+                - generic [ref=e345]:
+                  - generic [ref=e346]: ยอดฝาก สมาชิกใหม่
+                  - generic [ref=e348]: ( คน)
+              - generic [ref=e350] [cursor=pointer]:
+                - button [ref=e351]:
+                  - img [ref=e356]
+                - generic [ref=e361]: สมาชิกเข้าสู่ระบบ
+              - generic [ref=e363] [cursor=pointer]:
+                - button [ref=e364]:
+                  - img [ref=e369]
+                - generic [ref=e373]: สมาชิกเก่าเข้าสู่ระบบ
+              - generic [ref=e375] [cursor=pointer]:
+                - button [ref=e376]:
+                  - img [ref=e381]
+                - generic [ref=e385]: สมาชิกทั้งหมดของเว็บไซต์
+              - generic [ref=e387] [cursor=pointer]:
+                - button [ref=e388]:
+                  - img [ref=e393]
+                - generic [ref=e397]: เครดิตคงเหลือสมาชิกทั้งหมด
+              - generic [ref=e399] [cursor=pointer]:
+                - button [ref=e400]:
+                  - img [ref=e405]
+                - generic [ref=e409]: ยอดรวมเครดิตที่จ่ายให้สมาชิกจากกิจกรรม
+              - generic [ref=e411] [cursor=pointer]:
+                - button [ref=e412]:
+                  - img [ref=e417]
+                - generic [ref=e421]: ถอนค่าคอมมิชชั่น
+          - generic [ref=e426]:
+            - generic [ref=e429] [cursor=pointer]:
+              - img [ref=e431]
+              - generic [ref=e433]: ยอดเงินเข้าบัญชีฝาก
+              - img [ref=e436]
+            - generic [ref=e443] [cursor=pointer]:
+              - img [ref=e445]
+              - generic [ref=e447]: ยอดเงินถอนรายบัญชี
+              - img [ref=e450]
+            - generic [ref=e457] [cursor=pointer]:
+              - img [ref=e459]
+              - generic [ref=e461]: รายการฝาก
+              - img [ref=e464]
+            - generic [ref=e471] [cursor=pointer]:
+              - img [ref=e473]
+              - generic [ref=e475]: รายการถอน
+              - img [ref=e479]
+            - generic [ref=e485] [cursor=pointer]:
+              - generic [ref=e486]: สมาชิกที่สมัครผ่าน Affiliate Agent
+              - img [ref=e489]
+  - generic [ref=e494]:
+    - generic [ref=e499]:
+      - generic [ref=e500]:
+        - generic [ref=e501]:
+          - heading "Messenger" [level=3] [ref=e502]
+          - generic [ref=e505]: Connected
+          - button "Sync" [ref=e506] [cursor=pointer]:
+            - img [ref=e508]
+            - generic [ref=e513]: Sync
+        - button [ref=e514] [cursor=pointer]:
+          - img [ref=e515]
+      - tablist "Chat modes" [ref=e518]:
+        - tab "Chats" [selected] [ref=e519] [cursor=pointer]
+        - tab "Broadcast Online customers" [ref=e520] [cursor=pointer]:
+          - generic [ref=e521]: Broadcast
+          - generic "Online customers" [ref=e522]: 1 online
+      - tabpanel "Chats" [ref=e524]:
+        - generic [ref=e526]:
+          - generic [ref=e528]:
+            - textbox "Search customers..." [ref=e529]
+            - img [ref=e530]
+          - generic [ref=e533]:
+            - generic [ref=e534] [cursor=pointer]:
+              - img [ref=e537]
+              - generic [ref=e541]:
+                - generic [ref=e542]:
+                  - heading "0999999999" [level=4] [ref=e543]
+                  - generic [ref=e775]: 12:54 AM
+                - paragraph [ref=e545]: แจ้งฝากแนบสลิป
+            - generic [ref=e547] [cursor=pointer]:
+              - img [ref=e550]
+              - generic [ref=e553]:
+                - heading "cust_repro" [level=4] [ref=e555]
+                - paragraph [ref=e557]: hello-from-customer
+            - generic [ref=e558] [cursor=pointer]:
+              - img [ref=e561]
+              - generic [ref=e564]:
+                - heading "danutop thaiti" [level=4] [ref=e566]
+                - paragraph [ref=e568]: ...
+            - generic [ref=e569] [cursor=pointer]:
+              - img [ref=e572]
+              - generic [ref=e575]:
+                - heading "Mr.Pokabin" [level=4] [ref=e577]
+                - paragraph [ref=e579]: ...
+            - generic [ref=e580] [cursor=pointer]:
+              - img [ref=e583]
+              - generic [ref=e586]:
+                - heading "Natthakan Chaisawan" [level=4] [ref=e588]
+                - paragraph [ref=e590]: ...
+            - generic [ref=e591] [cursor=pointer]:
+              - img [ref=e594]
+              - generic [ref=e597]:
+                - heading "จิรกิตติ์" [level=4] [ref=e599]
+                - paragraph [ref=e601]: ...
+            - generic [ref=e602] [cursor=pointer]:
+              - img [ref=e605]
+              - generic [ref=e608]:
+                - heading "ณัฐพงษ์ พรมฟอง" [level=4] [ref=e610]
+                - paragraph [ref=e612]: ...
+            - generic [ref=e613] [cursor=pointer]:
+              - img [ref=e616]
+              - generic [ref=e619]:
+                - heading "ทดสอบDev Per" [level=4] [ref=e621]
+                - paragraph [ref=e623]: ...
+            - generic [ref=e624] [cursor=pointer]:
+              - img [ref=e627]
+              - generic [ref=e630]:
+                - heading "น.ส. ชลลัดดา ใจกว้าง" [level=4] [ref=e632]
+                - paragraph [ref=e634]: ...
+            - generic [ref=e635] [cursor=pointer]:
+              - img [ref=e638]
+              - generic [ref=e641]:
+                - heading "นางสาว ธัญชนก รัตนสุวรรณ" [level=4] [ref=e643]
+                - paragraph [ref=e645]: ...
+            - generic [ref=e646] [cursor=pointer]:
+              - img [ref=e649]
+              - generic [ref=e652]:
+                - heading "นาย เฉลิมศักดิ์ เสนแก้ว" [level=4] [ref=e654]
+                - paragraph [ref=e656]: ...
+            - generic [ref=e657] [cursor=pointer]:
+              - img [ref=e660]
+              - generic [ref=e663]:
+                - heading "นาย ซัลมิน สาแม" [level=4] [ref=e665]
+                - paragraph [ref=e667]: ...
+            - generic [ref=e668] [cursor=pointer]:
+              - img [ref=e671]
+              - generic [ref=e674]:
+                - heading "นาย ซัลมิน สาแม" [level=4] [ref=e676]
+                - paragraph [ref=e678]: ...
+            - generic [ref=e679] [cursor=pointer]:
+              - img [ref=e682]
+              - generic [ref=e685]:
+                - heading "นาย ธนกร ถังไชย" [level=4] [ref=e687]
+                - paragraph [ref=e689]: ...
+            - generic [ref=e690] [cursor=pointer]:
+              - img [ref=e693]
+              - generic [ref=e696]:
+                - heading "นาย พิเจตส์ นาคแก้ว" [level=4] [ref=e698]
+                - paragraph [ref=e700]: ...
+            - generic [ref=e701] [cursor=pointer]:
+              - img [ref=e704]
+              - generic [ref=e707]:
+                - heading "นาย วีระยุทธ วีระสัตรา" [level=4] [ref=e709]
+                - paragraph [ref=e711]: ...
+            - generic [ref=e712] [cursor=pointer]:
+              - img [ref=e715]
+              - generic [ref=e718]:
+                - heading "นาย ศิระ กิจนาค" [level=4] [ref=e720]
+                - paragraph [ref=e722]: ...
+            - generic [ref=e723] [cursor=pointer]:
+              - img [ref=e726]
+              - generic [ref=e729]:
+                - heading "นิชานันท์ อัครพงศ์ธานิน" [level=4] [ref=e731]
+                - paragraph [ref=e733]: ...
+            - generic [ref=e734] [cursor=pointer]:
+              - img [ref=e737]
+              - generic [ref=e740]:
+                - heading "ประเสริฐ สิริโชติทวีสุข" [level=4] [ref=e742]
+                - paragraph [ref=e744]: ...
+            - generic [ref=e745] [cursor=pointer]:
+              - img [ref=e748]
+              - generic [ref=e751]:
+                - heading "พรไพลิน ธีระนุกูล" [level=4] [ref=e753]
+                - paragraph [ref=e755]: ...
+            - generic [ref=e756] [cursor=pointer]:
+              - img [ref=e759]
+              - generic [ref=e762]:
+                - heading "รัชนี ชัยกิจ" [level=4] [ref=e764]
+                - paragraph [ref=e766]: ...
+        - generic [ref=e776]:
+          - generic [ref=e777]:
+            - generic [ref=e778]:
+              - generic [ref=e779]:
+                - generic [ref=e781]: E2E-READ-SYNC-1781057735659
+                - generic [ref=e782]: 10/06/2026 09:15
+              - generic [ref=e783]:
+                - generic [ref=e785]: E2E-UNREAD-INC-1781057744702
+                - generic [ref=e786]: 10/06/2026 09:15
+              - generic [ref=e787]:
+                - generic [ref=e789]: E2E-FC-1781058545600
+                - generic [ref=e790]: 10/06/2026 09:29
+              - generic [ref=e791]:
+                - generic [ref=e793]: E2E-FC-TO-BO-1781058550877
+                - generic [ref=e794]: 10/06/2026 09:29
+              - generic [ref=e795]:
+                - generic [ref=e797]: E2E-BO-1781058556730
+                - generic [ref=e798]: 10/06/2026 09:29
+              - generic [ref=e799]:
+                - generic [ref=e801]: E2E-BO-TO-FC-1781058562601
+                - generic [ref=e802]: 10/06/2026 09:29
+              - generic [ref=e803]:
+                - generic [ref=e805]: E2E-FOLLOWER-1781058568339
+                - generic [ref=e806]: 10/06/2026 09:29
+              - generic [ref=e807]:
+                - generic [ref=e809]: E2E-READ-SYNC-1781058574011
+                - generic [ref=e810]: 10/06/2026 09:29
+              - generic [ref=e811]:
+                - generic [ref=e813]: E2E-UNREAD-INC-1781058583059
+                - generic [ref=e814]: 10/06/2026 09:29
+              - generic [ref=e815]:
+                - generic [ref=e817]: E2E-FC-1781058979319
+                - generic [ref=e818]: 10/06/2026 09:36
+              - generic [ref=e819]:
+                - generic [ref=e821]: E2E-FC-TO-BO-1781058984645
+                - generic [ref=e822]: 10/06/2026 09:36
+              - generic [ref=e823]:
+                - generic [ref=e825]: E2E-BO-1781058990522
+                - generic [ref=e826]: 10/06/2026 09:36
+              - generic [ref=e827]:
+                - generic [ref=e829]: E2E-BO-TO-FC-1781058996372
+                - generic [ref=e830]: 10/06/2026 09:36
+              - generic [ref=e831]:
+                - generic [ref=e833]: E2E-FOLLOWER-1781059002221
+                - generic [ref=e834]: 10/06/2026 09:36
+              - generic [ref=e835]:
+                - generic [ref=e837]: E2E-READ-SYNC-1781059007920
+                - generic [ref=e838]: 10/06/2026 09:36
+              - generic [ref=e839]:
+                - generic [ref=e841]: E2E-SYNC-RECONNECT-1781059025030
+                - generic [ref=e842]: 10/06/2026 09:37
+              - generic [ref=e843]:
+                - generic [ref=e845]: P0-FC-1781062917470
+                - generic [ref=e846]: 10/06/2026 10:41
+              - generic [ref=e847]:
+                - generic [ref=e849]: COLDSTART-1781062995526
+                - generic [ref=e850]: 10/06/2026 10:43
+              - generic [ref=e851]:
+                - generic [ref=e853]: P0R2-SEED-1781063223932
+                - generic [ref=e854]: 10/06/2026 10:47
+              - generic [ref=e855]:
+                - generic [ref=e857]: P0R2-VMB-1781063223932
+                - generic [ref=e858]: 10/06/2026 10:47
+              - generic [ref=e859]:
+                - generic [ref=e861]: P0R2-MALI-1781063223932
+                - generic [ref=e862]: 10/06/2026 10:47
+              - generic [ref=e863]:
+                - generic [ref=e865]: "1"
+                - generic [ref=e866]: 10/06/2026 11:06
+              - generic [ref=e867]:
+                - generic [ref=e869]: "2"
+                - generic [ref=e870]: 10/06/2026 11:22
+              - generic [ref=e871]:
+                - generic [ref=e873]: "3"
+                - generic [ref=e874]: 10/06/2026 11:22
+              - generic [ref=e875]:
+                - generic [ref=e877]: "4"
+                - generic [ref=e878]: 10/06/2026 11:22
+              - generic [ref=e879]:
+                - generic [ref=e881]: "5"
+                - generic [ref=e882]: 10/06/2026 11:22
+              - generic [ref=e883]:
+                - generic [ref=e885]: "6"
+                - generic [ref=e886]: 10/06/2026 11:22
+              - generic [ref=e887]:
+                - generic [ref=e889]: "7"
+                - generic [ref=e890]: 10/06/2026 11:22
+              - generic [ref=e891]:
+                - generic [ref=e893]: "8"
+                - generic [ref=e894]: 10/06/2026 11:22
+              - generic [ref=e895]:
+                - generic [ref=e897]: "9"
+                - generic [ref=e898]: 10/06/2026 11:22
+              - generic [ref=e899]:
+                - generic [ref=e901]: "10"
+                - generic [ref=e902]: 10/06/2026 11:22
+              - generic [ref=e903]:
+                - generic [ref=e905]: "11"
+                - generic [ref=e906]: 10/06/2026 11:23
+              - generic [ref=e907]:
+                - generic [ref=e909]: "12"
+                - generic [ref=e910]: 10/06/2026 11:23
+              - generic [ref=e911]:
+                - generic [ref=e913]: "13"
+                - generic [ref=e914]: 10/06/2026 11:23
+              - generic [ref=e915]:
+                - generic [ref=e917]: "14"
+                - generic [ref=e918]: 10/06/2026 11:23
+              - generic [ref=e919]:
+                - generic [ref=e921]: "15"
+                - generic [ref=e922]: 10/06/2026 11:23
+              - generic [ref=e923]:
+                - generic [ref=e925]: "16"
+                - generic [ref=e926]: 10/06/2026 11:23
+              - generic [ref=e927]:
+                - generic [ref=e929]: "17"
+                - generic [ref=e930]: 10/06/2026 18:37
+              - generic [ref=e931]:
+                - generic [ref=e933]: "18"
+                - generic [ref=e934]: 10/06/2026 18:37
+              - generic [ref=e935]:
+                - generic [ref=e937]: E2E-FC-1781099910125
+                - generic [ref=e938]: 10/06/2026 20:58
+              - generic [ref=e939]:
+                - generic [ref=e941]: E2E-FC-TO-BO-1781099915510
+                - generic [ref=e942]: 10/06/2026 20:58
+              - generic [ref=e943]:
+                - generic [ref=e945]: E2E-BO-1781099920775
+                - generic [ref=e946]: 10/06/2026 20:58
+              - generic [ref=e947]:
+                - generic [ref=e949]: E2E-BO-TO-FC-1781099926626
+                - generic [ref=e950]: 10/06/2026 20:58
+              - generic [ref=e951]:
+                - generic [ref=e953]: E2E-FOLLOWER-1781099932431
+                - generic [ref=e954]: 10/06/2026 20:58
+              - generic [ref=e955]:
+                - generic [ref=e957]: E2E-READ-SYNC-1781099938125
+                - generic [ref=e958]: 10/06/2026 20:58
+              - generic [ref=e959]:
+                - generic [ref=e961]: E2E-UNREAD-INC-1781099947170
+                - generic [ref=e962]: 10/06/2026 20:59
+              - generic [ref=e963]:
+                - generic [ref=e965]: E2E-SYNC-RECONNECT-1781099966470
+                - generic [ref=e966]: 10/06/2026 20:59
+              - generic [ref=e967]:
+                - generic [ref=e968]:
+                  - generic [ref=e969]:
+                    - generic [ref=e970]: แจ้งฝากแนบสลิป
+                    - generic [ref=e971]: สำเร็จ
+                  - img "Slip" [ref=e972] [cursor=pointer]
+                  - generic [ref=e973]:
+                    - generic [ref=e974]:
+                      - generic [ref=e975]: จำนวนเงิน
+                      - generic [ref=e976]: 1,500.5 บาท
+                    - generic [ref=e977]:
+                      - generic [ref=e978]: จากบัญชี
+                      - generic [ref=e979]: BBL ****0452
+                  - generic [ref=e980]: แจ้งสลิปสำเร็จ
+                - generic [ref=e981]: 12/06/2026 00:48
+              - generic [ref=e982]:
+                - generic [ref=e983]:
+                  - generic [ref=e984]:
+                    - generic [ref=e985]: แจ้งฝากแนบสลิป
+                    - generic [ref=e986]: ไม่สำเร็จ
+                  - img "Slip" [ref=e987] [cursor=pointer]
+                  - generic [ref=e988]:
+                    - generic [ref=e989]:
+                      - generic [ref=e990]: จำนวนเงิน
+                      - generic [ref=e991]: 99 บาท
+                    - generic [ref=e992]:
+                      - generic [ref=e993]: จากบัญชี
+                      - generic [ref=e994]: BBL ****0452
+                  - generic [ref=e995]: ยอดเงินไม่ตรงกับสลิป โปรดตรวจสอบ
+                - generic [ref=e996]: 12/06/2026 00:53
+              - generic [ref=e997]:
+                - generic [ref=e998]:
+                  - generic [ref=e999]:
+                    - generic [ref=e1000]: แจ้งฝากแนบสลิป
+                    - generic [ref=e1001]: สำเร็จ
+                  - img "Slip" [ref=e1002] [cursor=pointer]
+                  - generic [ref=e1003]:
+                    - generic [ref=e1004]:
+                      - generic [ref=e1005]: จำนวนเงิน
+                      - generic [ref=e1006]: 250 บาท
+                    - generic [ref=e1007]:
+                      - generic [ref=e1008]: จากบัญชี
+                      - generic [ref=e1009]: BBL ****0452
+                  - generic [ref=e1010]: แจ้งสลิปสำเร็จ
+                - generic [ref=e1011]: 12/06/2026 00:54
+            - button "Scroll to latest message" [ref=e1012] [cursor=pointer]:
+              - img [ref=e1013]
+          - generic [ref=e1016]:
+            - button [ref=e1017] [cursor=pointer]:
+              - img [ref=e1018]
+            - textbox "Type a message..." [ref=e1020]
+            - button [disabled] [ref=e1021]:
+              - img [ref=e1022]
+    - button [ref=e1025] [cursor=pointer]:
+      - img [ref=e772]
