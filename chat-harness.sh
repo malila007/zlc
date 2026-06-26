@@ -4,7 +4,7 @@
 # worktree management + build/test gate + full E2E + cleanup. Single-machine dev tool.
 set -euo pipefail
 
-ROOT="/home/togethel2/workspace/zigma/chat"
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 usage() {
   cat >&2 <<'EOF'
@@ -34,7 +34,7 @@ case "$cmd" in
     npm run test --if-present
     ;;
   e2e)
-    NODE_PATH=/home/togethel2/.npm/_npx/e41f203b7505f1fb/node_modules \
+    NODE_PATH="$ROOT/node_modules" \
       node "$ROOT/e2e-chat-test.js"
     ;;
   cleanup)

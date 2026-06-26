@@ -70,8 +70,8 @@ If a task genuinely requires changing backoffice config or a non-chat backoffice
 Before any production release (when the user says ready for prod), run the full E2E suite. The gate is **0 FAIL** — the run prints a `PASS / FAIL / WARN / TOTAL` summary; WARN does not block. Do not hardcode a test count; it grows as tests are added.
 
 ```bash
-NODE_PATH=/home/togethel2/.npm/_npx/e41f203b7505f1fb/node_modules \
-  node /home/togethel2/workspace/zigma/chat/e2e-chat-test.js
+# from the repo root
+./chat-harness.sh e2e
 ```
 
 Requires: `backoffice-frontend` on `:3000`, `floating-chat` on `:5173`, `chat-service` on `:3333` with `CHAT_ENABLED=true`. Logins: `mali168` / `123456`; `vmb` / `#10_fvo@$10C+`.

@@ -6,6 +6,7 @@ floating-chat/
 # Machine-local Claude state
 .claude/settings.local.json
 .claude/worktrees/
+.playwright-mcp/
 
 # Dependencies / build
 node_modules/

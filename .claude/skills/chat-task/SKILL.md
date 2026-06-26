@@ -49,23 +49,32 @@ The mechanical worktree/build/test/e2e/cleanup work is the `chat-harness.sh` scr
 ```bash
 REPO="chat-service"             # app repo touched: chat-service | floating-chat | backoffice-frontend
 TOPIC="<topic>"                 # same slug as the report folder
-WT=$(/home/togethel2/workspace/zigma/chat/chat-harness.sh worktree "$REPO" "$TOPIC")
+WT=$(./chat-harness.sh worktree "$REPO" "$TOPIC")
 ```
 
 Write the approved execution plan to `$WT/.codex-plan.md` (goal, ordered steps, files to
 touch, acceptance checks). Then run Codex in the worktree:
 
+Always wrap `codex exec` in `timeout` so a hung Codex (network stall) still exits and
+reports — never run it bare:
+
 ```bash
-codex exec -C "$WT" -s workspace-write --skip-git-repo-check \
-  "Read .codex-plan.md in this repository and implement it exactly. Do not deviate from the plan or add unrequested changes."
+timeout 900 codex exec -C "$WT" -s workspace-write --skip-git-repo-check \
+  "Read .codex-plan.md in this repository and implement it exactly. Do not deviate from the plan or add unrequested changes." \
+  > "$WT/.codex-run.log" 2>&1
+echo "codex exit=$?"   # 0=done · 124=timed out/hung · other=error → inspect .codex-run.log
 ```
+
+Treat exit `124` (timeout) or any non-zero exit as a failed run: read `.codex-run.log`,
+and if Codex made no usable progress, re-run once; if it hangs again, stop and report to
+the user.
 
 ## Stage 4 — Verify (Harness: build + test)
 
 Run the build + test gate via the harness (test auto-skipped where absent):
 
 ```bash
-/home/togethel2/workspace/zigma/chat/chat-harness.sh verify "$WT"
+./chat-harness.sh verify "$WT"
 ```
 
 Any non-zero exit = fail → Stage 5.
@@ -115,7 +124,7 @@ needs it to merge). Cleanup command for later: `chat-harness.sh cleanup "$REPO" 
 Per PROJECT.md pre-release gate — requires the full local stack and 0 FAIL:
 
 ```bash
-/home/togethel2/workspace/zigma/chat/chat-harness.sh e2e
+./chat-harness.sh e2e
 ```
 
 Gate = 0 FAIL (WARN does not block). Must include E2E-CHAT-SHARED-INBOX-VMB-MALI passing.
